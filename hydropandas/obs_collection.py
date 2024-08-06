@@ -2421,4 +2421,7 @@ class ObsCollection(pd.DataFrame):
 
         SelectedObs.drop(columns=['obs', 'filename', 'unit','metadata_available'])
 
+        SelectedObs['id'] = "Reeksen\\" + SelectedObs.index.astype(str)
+        SelectedObs.insert(3, "screen_top", SelectedObs.pop('screen_top'))
+        SelectedObs.insert(4, "screen_bottom", SelectedObs.pop('screen_bottom'))
         return SelectedObs
