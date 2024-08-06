@@ -9,3 +9,5 @@ BRO_Import = hydropandas.read_bro(extent=my_extent)
 
 #%%
 BRO_Import.to_IPF()
+#%%
+BRO_Import.drop(columns=['obs', 'filename', 'unit','metadata_available'])

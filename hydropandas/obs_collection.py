@@ -2419,7 +2419,7 @@ class ObsCollection(pd.DataFrame):
         if not os.path.exists(rf'{file_location}/IPF/Reeksen'):
             os.makedirs(rf'{file_location}/IPF/Reeksen')
 
-        SelectedObs.drop(columns=['obs', 'filename', 'unit','metadata_available'])
+        SelectedObs = SelectedObs.drop(columns=['obs', 'filename', 'unit','metadata_available'])
         #SelectedObs['id'] = "Reeksen\\" + SelectedObs.index.astype(str)
         #SelectedObs.insert(3, "screen_top", SelectedObs.pop('screen_top'))
         #SelectedObs.insert(4, "screen_bottom", SelectedObs.pop('screen_bottom'))
