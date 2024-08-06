@@ -2415,13 +2415,26 @@ class ObsCollection(pd.DataFrame):
         timeseries_path = rf'{IPFpath}/Reeksen'
 
         if not os.path.exists(rf'{file_location}/IPF'):
-            os.makedirs(rf'{file_location}/IPF')
+            os.makedirs(rf"{file_location}/IPF")
         if not os.path.exists(rf'{file_location}/IPF/Reeksen'):
             os.makedirs(rf'{file_location}/IPF/Reeksen')
 
         SelectedObs = SelectedObs.drop(columns=['obs', 'filename', 'unit','metadata_available'])
-        #SelectedObs['id'] = "Reeksen\\" + SelectedObs.index.astype(str)
-        #SelectedObs.insert(3, "screen_top", SelectedObs.pop('screen_top'))
-        #SelectedObs.insert(4, "screen_bottom", SelectedObs.pop('screen_bottom'))
+        SelectedObs['id'] = "Reeksen\\" + SelectedObs["monitoring_well"].astype(str) + "_" +  SelectedObs["tube_nr"].astype(str)
+        
+        SelectedObs.insert(3, "screen_top", SelectedObs.pop('screen_top'))
+        SelectedObs.insert(4, "screen_bottom", SelectedObs.pop('screen_bottom'))
+        
+        col_num_timeseries_id = SelectedObs.columns.get_loc("id") + 1
 
-        return SelectedObs
+        HeaderString = f"{len(SelectedObs)}\n{len(SelectedObs.columns)}\n"
+        poststring = f"\n{col_num_timeseries_id},txt\n"
+        header = HeaderString + '\n'.join(SelectedObs.columns) + poststring
+        SelectedObsText = SelectedObs.to_string(header = False, index = False)
+
+        with open(rf"{IPFpath}\GroundwaterObs.ipf", 'w') as file:
+            file.write(header)
+            file.write(SelectedObsText)
+        print("All groundwater observations containing data have been writen to the file GroundwaterObs.ipf")
+        return SelectedObs 
+        
