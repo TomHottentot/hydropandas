@@ -14,6 +14,8 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
+import os
+
 from . import observation as obs
 from . import util
 
@@ -2403,3 +2405,20 @@ class ObsCollection(pd.DataFrame):
             obs_list.append(o)
 
         return self.from_list(obs_list)
+
+    def to_IPF(self):
+        Obs_no = self.stats.get_no_of_observations()
+        NonEmptyObs = Obs_no[Obs_no > 0]
+        SelectedObs = self[self.index.isin(NonEmptyObs.index)]
+        file_location = os.getcwd()
+        IPFpath = rf'{file_location}/IPF'
+        timeseries_path = rf'{IPFpath}/Reeksen'
+
+        if not os.path.exists(rf'{file_location}/IPF'):
+            os.makedirs(rf'{file_location}/IPF')
+        if not os.path.exists(rf'{file_location}/IPF/Reeksen'):
+            os.makedirs(rf'{file_location}/IPF/Reeksen')
+
+        SelectedObs.drop(columns=['obs', 'filename', 'unit','metadata_available'])
+
+        return SelectedObs
