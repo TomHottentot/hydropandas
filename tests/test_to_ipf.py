@@ -9,5 +9,3 @@ BRO_Import = hydropandas.read_bro(extent=my_extent)
 
 #%%
 Test = BRO_Import.to_IPF()
-#%%
-Test.insert(3, "screen_top", Test.pop('screen_top'))
