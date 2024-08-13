@@ -1,0 +1,24 @@
+import logging
+import os
+
+import numpy as np
+from pandas import DataFrame, Series, Timedelta, Timestamp
+from scipy.io import loadmat
+
+from ..observation import GroundwaterObs, WaterlvlObs
+
+logger = logging.getLogger(__name__)
+
+def to_Menyanthes(self, dirpath): 
+    """Write an ObsCollection to an Menyanthes ASCII CSV file.
+    
+    Parameters
+    ----------
+    dirpath : str
+    full directory path of the folder where the IPF-file and timeseries folder should be stored.
+
+    Returns
+    -------
+    SelectedObs : pandas.DataFrame
+        the ObsColelction with the non-empty observations from the ObsCollection
+    """
