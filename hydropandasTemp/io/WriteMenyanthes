@@ -1,24 +1,114 @@
-import logging
+#%%
+import sys 
 import os
+import pandas as pd
+import hydropandas as hdp
 
-import numpy as np
-from pandas import DataFrame, Series, Timedelta, Timestamp
-from scipy.io import loadmat
+sys.path.append(r"C:\Users\925793\OneDrive - Royal HaskoningDHV\Python_Learning\hydropandas-1")
+import hydropandasTemp as hydropandas
 
-from ..observation import GroundwaterObs, WaterlvlObs
 
-logger = logging.getLogger(__name__)
+#%%
+my_extent = (167000, 172500, 472000, 475000) # Define a boundingbox (XMIN, XMAX, YMIN, YMAX)
+utrecht_noord_extent = (133890, 137782, 456000, 457331)
+#%%
+BRO_Import = hydropandas.read_bro(extent=my_extent)
 
-def to_Menyanthes(self, dirpath): 
-    """Write an ObsCollection to an Menyanthes ASCII CSV file.
+#%%
+test = BRO_Import.to_IPF(dirpath = r"c:\Users\925793\Downloads")
+
+#%% Header 
+t_min = "2009/02/20" #Toevoegen
+t_max = "2010/03/22" #Toevoegen
+DateNow = "1970/01/01" #Toevoegen
+TimeNow = "00:00" #Toevoegen
+
+Header = (f'TITEL: Hydropandas GroundwaterObs Hydromonitor Export \n'
+          f'GEBRUIKERSNAAM: Hydropandas\n'
+          f'PERIODE: {t_min} - {t_max}\n'
+          f'DATUM: {DateNow} {TimeNow}\n'
+          f'REFERENTIE: NAP\n\n')
+
+#%%
+Obs_no = BRO_Import.stats.get_no_of_observations()
+NonEmptyObs = Obs_no[Obs_no > 0]
+SelectedObs = BRO_Import[BRO_Import.index.isin(NonEmptyObs.index)]
+
+for i in range(SelectedObs.shape[0]):
+    Obs_no = SelectedObs.stats.get_no_of_observations()
+    NonEmptyObs = Obs_no[Obs_no > 0]
+    SelectedObs = SelectedObs[SelectedObs.index.isin(NonEmptyObs.index)]
+    MonitoringWell_ID = SelectedObs.monitoring_well.iloc[i]
+    TimeSeries = hdp.GroundwaterObs.from_bro(MonitoringWell_ID, int(SelectedObs.tube_nr.iloc[i]))
+    print(TimeSeries)
+    LocatiePeilbuis = [TimeSeries.monitoring_well] * len(TimeSeries)
+    FilternummerTimeSeries = [TimeSeries.tube_nr] * len(TimeSeries)
+    PeilDatumTijd = pd.Series(TimeSeries.index)
+    StandNAP = TimeSeries['values']
+    Bijzonderheid = TimeSeries['qualifier']
+        
+    TimeSeriesZipped = list(zip(LocatiePeilbuis, 
+                                FilternummerTimeSeries, 
+                                PeilDatumTijd, 
+                                StandNAP, 
+                                Bijzonderheid))
+                                    
+    TimeSeriesObs = pd.DataFrame(TimeSeriesZipped, 
+                                 columns=['LOCATIE',
+                                          'FILTERNUMMER',
+                                          'PEIL DATUM TIJD',
+                                          'STAND (NAP)',
+                                          'BIJZONDERHEID'])
     
-    Parameters
-    ----------
-    dirpath : str
-    full directory path of the folder where the IPF-file and timeseries folder should be stored.
+    if(i == 0):
+        TimeSeriesModule = TimeSeriesObs
+    else:
+        TimeSeriesModule = pd.concat([TimeSeriesModule,TimeSeriesObs])
+    
+#%% Series description
+Locatie = SelectedObs['monitoring_well']
+FilterNummer = SelectedObs['tube_nr']
+ExterneAanduiding = ["n/a"] * len(SelectedObs)
+X_Coordinaat = SelectedObs['x']
+Y_Coordinaat = SelectedObs['y']
+Maaiveld = SelectedObs['ground_level']
+Geschat = [""]* len(SelectedObs)
+MaaiveldNAP = [""]* len(SelectedObs)
+BovenkantFilter = SelectedObs['screen_top']
+OnderkantFilter = SelectedObs['screen_bottom']
+StartDatum = SelectedObs.stats.dates_first_obs.to_list() #Later aanvullen
+EindeDatum = SelectedObs.stats.dates_last_obs.to_list() #Later aanvullen 
 
-    Returns
-    -------
-    SelectedObs : pandas.DataFrame
-        the ObsColelction with the non-empty observations from the ObsCollection
-    """
+DescriptionZipped = list(zip(Locatie, 
+                  FilterNummer, 
+                  ExterneAanduiding, 
+                  X_Coordinaat, 
+                  Y_Coordinaat,
+                  Maaiveld,
+                  Geschat,
+                  MaaiveldNAP,
+                  BovenkantFilter,
+                  OnderkantFilter,
+                  StartDatum,
+                  EindeDatum))
+
+DescriptionModule = pd.DataFrame(DescriptionZipped, columns=['LOCATIE', 
+                                   'FILTER NUMMER', 
+                                   'EXTERNE AANDUIDING',
+                                   'X COORDINAAT',
+                                   'Y COORDINAAT',
+                                   'MAAIVELD',
+                                   'GESCHAT',
+                                   'MAAIVELD NAP',
+                                   'BOVENKANT FILTER',
+                                   'ONDERKANT FILTER',
+                                   'START DATUM',
+                                   'EINDE DATUM'])
+
+#%%
+with open(r'C:\Users\925793\Downloads\test.csv', 'w',newline='') as file:
+        file.write(Header)
+        file.write(DescriptionModule.to_csv(index = False))
+        file.write("\n")
+        file.write(TimeSeriesModule.to_csv(index = False))
+

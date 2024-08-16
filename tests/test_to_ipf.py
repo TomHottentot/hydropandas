@@ -14,3 +14,5 @@ Test = BRO_Import.to_IPF(dirpath = r"c:\Users\925793\Downloads")
 
 #%%
 BRO_Import.plots.section_plot(section_colname_x="x", section_label_x="x coordinate [m]")
+
+hydropandas.read_menyanthes(r'C:\Users\925793\Downloads\test.men')

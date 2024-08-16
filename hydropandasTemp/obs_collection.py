@@ -2429,27 +2429,3 @@ class ObsCollection(pd.DataFrame):
             dirpath = dirpath, 
         )
         return SelectedObs
-
-    def to_Menyanthes(
-        self,
-        dirpath: str = None,
-    ):
-        """Write an ObsCollection to an Menyanthes ASCII CSV file.
-
-        Parameters
-        ----------
-        dirpath : str
-        full directory path of the folder where the IPF-file and timeseries folder should be stored.
-
-        Returns
-        -------
-        SelectedObs : pandas.DataFrame
-            the ObsColelction with the non-empty observations from the ObsCollection
-        """
-        from .io.WriteMenyanthes import to_IPF
-
-        SelectedObs = to_IPF(
-            self,
-            dirpath = dirpath, 
-        )
-        return SelectedObs

@@ -289,3 +289,18 @@ def read_stresses(mat):
         d_in[IN.Name] = data
 
     return d_in
+
+def to_Menyanthes(self, dirpath): 
+    """Write an ObsCollection to an Menyanthes ASCII CSV file.
+    
+    Parameters
+    ----------
+    dirpath : str
+    full directory path of the folder where the IPF-file and timeseries folder should be stored.
+
+    Returns
+    -------
+    SelectedObs : pandas.DataFrame
+        the ObsColelction with the non-empty observations from the ObsCollection
+    """
+    
