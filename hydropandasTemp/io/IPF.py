@@ -27,6 +27,7 @@ def to_IPF(self, dirpath):
         e = 4 #
 
     SelectedObs = self[self.index.isin(NonEmptyObs.index)]
+    MeanList = list(SelectedObs.stats.get_seasonal_stat(winter_months=(1,2,3,4,5,6,7,8,9,10,11,12)).iloc[:, 0])
     file_location = os.getcwd()
     IPFpath = rf'{dirpath}\IPF'
     timeseries_path = rf'{dirpath}\IPF\TimeSeries'
@@ -46,6 +47,7 @@ def to_IPF(self, dirpath):
                          + "_"
                          + SelectedObs["tube_nr"].astype(str)
                          )
+    SelectedObs['Mean'] = MeanList
     SelectedObs.insert(3,
                        "screen_top",
                        SelectedObs.pop('screen_top')
